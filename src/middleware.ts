@@ -1,8 +1,12 @@
-import { auth } from "@/lib/auth";
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-export default auth((req) => {
-  const isLoggedIn = !!req.auth;
+export function middleware(req: NextRequest) {
+  // Check for session cookie (authjs.session-token or __Secure- prefixed in production)
+  const sessionCookie = req.cookies.get("authjs.session-token") ||
+                        req.cookies.get("__Secure-authjs.session-token");
+  const isLoggedIn = !!sessionCookie;
+
   const isOnDashboard =
     req.nextUrl.pathname.startsWith("/bots") ||
     req.nextUrl.pathname.startsWith("/templates") ||
@@ -27,7 +31,7 @@ export default auth((req) => {
   }
 
   return NextResponse.next();
-});
+}
 
 export const config = {
   matcher: ["/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)"],
