@@ -24,24 +24,19 @@ export const {
       }
       return session;
     },
-    async signIn({ user, account }) {
+  },
+  events: {
+    async createUser({ user }) {
       // On first sign in, create a free subscription
-      if (account && user.id) {
-        const existingSubscription = await db.subscription.findUnique({
-          where: { userId: user.id },
+      if (user.id) {
+        await db.subscription.create({
+          data: {
+            userId: user.id,
+            tier: "FREE",
+            status: "ACTIVE",
+          },
         });
-
-        if (!existingSubscription) {
-          await db.subscription.create({
-            data: {
-              userId: user.id,
-              tier: "FREE",
-              status: "ACTIVE",
-            },
-          });
-        }
       }
-      return true;
     },
   },
   pages: {
